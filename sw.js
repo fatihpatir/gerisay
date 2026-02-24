@@ -1,38 +1,30 @@
-const CACHE_NAME = 'gerisay-v2';
-const assets = ['./', './index.html', './manifest.json', './icon.png'];
-
-// Dosyaları Önbelleğe Al
-self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(assets)));
-});
-
-// Çevrimdışı Destek
-self.addEventListener('fetch', (e) => {
-  e.respondWith(caches.match(e.request).then(res => res || fetch(e.request)));
-});
-
-// BİLDİRİM YAKALAYICI (PUSH EVENT)
 self.addEventListener('push', function(event) {
-    let data = { title: 'GeriSay', body: 'Bir süreniz doldu kral!' };
-    try {
-        if (event.data) {
-            data = event.data.json();
+    let payload = 'Süre doldu kral!';
+    
+    if (event.data) {
+        try {
+            // Eğer veri JSON ise başlığı ve mesajı al
+            const data = event.data.json();
+            payload = data.body || data.message || payload;
+        } catch (e) {
+            // Eğer veri düz metin ise direkt onu al
+            payload = event.data.text();
         }
-    } catch (e) {
-        data.body = event.data.text();
     }
 
     const options = {
-        body: data.body,
+        body: payload,
         icon: 'icon.png',
         badge: 'icon.png',
         vibrate: [200, 100, 200]
     };
 
-    event.waitUntil(self.registration.showNotification(data.title, options));
+    event.waitUntil(
+        self.registration.showNotification('GeriSay Bildirimi', options)
+    );
 });
 
-// Bildirime Tıklanınca Uygulamayı Aç
+// Bildirime tıklayınca uygulamayı aç
 self.addEventListener('notificationclick', function(event) {
     event.notification.close();
     event.waitUntil(clients.openWindow('./'));
