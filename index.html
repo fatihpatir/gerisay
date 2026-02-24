@@ -10,36 +10,27 @@
     <style>
         :root { --p: #00d2ff; --bg: #0f172a; --card: #1e293b; }
         body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; padding: 20px; margin: 0; transition: 0.3s; padding-bottom: 100px; }
-        
         .t-blue { --p: #00d2ff; --bg: #0f172a; --card: #1e293b; }
         .t-red { --p: #ff4d4d; --bg: #2a0f0f; --card: #3b1e1e; }
         .t-green { --p: #00ff88; --bg: #0f2a1a; --card: #1e3b2a; }
         .t-gold { --p: #ffcc00; --bg: #2a250f; --card: #3b351e; }
         .t-purple { --p: #bc13fe; --bg: #1a0f2a; --card: #2a1e3b; }
-
         .container { max-width: 500px; margin: auto; }
         .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        
         .input-group { background: var(--card); padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
         input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: var(--bg); color: white; box-sizing: border-box; outline: none; }
         button { background: var(--p); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
         button:active { transform: scale(0.98); }
-
-        .event-card { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 15px; border-left: 5px solid var(--p); position: relative; animation: slideIn 0.3s ease-out; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
+        .event-card { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 15px; border-left: 5px solid var(--p); position: relative; }
         .timer { font-family: 'Courier New', monospace; font-size: 1.3rem; color: var(--p); font-weight: bold; display: block; margin-top: 5px; }
         .del-btn { position: absolute; right: 10px; top: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
         .modal-content { background: var(--card); margin: 20% auto; padding: 25px; width: 85%; max-width: 400px; border-radius: 20px; border: 1px solid var(--p); }
-
         .theme-ball { width: 40px; height: 40px; border-radius: 50%; display: inline-block; cursor: pointer; margin: 8px; border: 3px solid rgba(255,255,255,0.2); }
-        
         footer { margin-top: 40px; text-align: center; font-size: 0.85rem; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
         footer a { color: var(--p); text-decoration: none; font-weight: bold; }
-
-        #installBtn { display: none; margin-bottom: 15px; background: #fff; color: #000; border: 2px solid var(--p); }
+        #notifBtn { margin-top: 10px; background: #22c55e; color: white; display: none; }
+        #installBtn { display: none; margin-bottom: 15px; background: #fff; color: #000; }
         .i-btn { background: none; border: 1.5px solid var(--p); color: var(--p); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; }
     </style>
 </head>
@@ -52,6 +43,7 @@
     </div>
 
     <button id="installBtn">Uygulamayı Yükle</button>
+    <button id="notifBtn" onclick="subscribePush()">Bildirimleri Etkinleştir</button>
 
     <div class="input-group">
         <input type="text" id="evN" placeholder="Etkinlik Adı">
@@ -72,7 +64,7 @@
 <div id="infoM" class="modal" onclick="closeM('infoM')">
     <div class="modal-content" onclick="event.stopPropagation()">
         <h3 style="color:var(--p)">Nasıl Kullanılır?</h3>
-        <p>• Etkinlik girip "EKLE" deyin.<br>• Verileriniz telefonunuzda saklanır.<br>• <b>Android:</b> 'Yükle' butonuna basın.<br>• <b>iOS:</b> Paylaş -> Ana Ekrana Ekle.</p>
+        <p>• Etkinlik girip "EKLE" deyin.<br>• Verileriniz telefonunuzda saklanır.<br>• <b>Bildirim:</b> Yeşil butona basıp izin verin.</p>
         <button onclick="closeM('infoM')">Anladım</button>
     </div>
 </div>
@@ -90,7 +82,9 @@
 </div>
 
 <script>
+    const publicVapidKey = 'BNLZsm2t_n2TW-4Vuq0CeGslqN-3f4R3qwVIAxDyx4qpikvp6DLUX7y-eH_P-ylt6XtJfi9GEj7arVtGKAxWdVI';
     let evs = JSON.parse(localStorage.getItem('k_evs')) || [];
+    let notifiedEvents = new Set(); // Bildirimi atılanları takip et
     
     function setT(t) { document.body.className = t; localStorage.setItem('k_t', t); }
     if(localStorage.getItem('k_t')) setT(localStorage.getItem('k_t'));
@@ -124,27 +118,73 @@
         const el = document.getElementById(`timer-${ev.id}`);
         const tick = () => {
             const diff = new Date(ev.d) - new Date();
-            if (diff < 0) { el.innerText = "Süre doldu!"; return; }
+            if (diff < 0) { 
+                el.innerText = "Süre doldu!"; 
+                if (!notifiedEvents.has(ev.id)) {
+                    showLocalNotification(ev.n);
+                    notifiedEvents.add(ev.id);
+                }
+                return; 
+            }
             const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
             el.innerText = `${d}g ${h}s ${m}d ${s}sn`;
         };
         tick(); setInterval(tick, 1000);
     }
 
-    function del(id) { evs = evs.filter(e => e.id !== id); save(); }
+    function del(id) { evs = evs.filter(e => e.id !== id); notifiedEvents.delete(id); save(); }
 
+    // --- BİLDİRİM MANTIĞI ---
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('sw.js').then(() => {
+            if (Notification.permission !== 'granted') {
+                document.getElementById('notifBtn').style.display = 'block';
+            }
+        });
+    }
+
+    async function subscribePush() {
+        const register = await navigator.serviceWorker.ready;
+        const subscription = await register.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
+        });
+        console.log("TOKEN KRAL:", JSON.stringify(subscription));
+        alert("Bildirimler aktif! Console'daki kodu bana atabilirsin.");
+        document.getElementById('notifBtn').style.display = 'none';
+    }
+
+    function showLocalNotification(eventName) {
+        if (Notification.permission === 'granted') {
+            navigator.serviceWorker.ready.then(reg => {
+                reg.showNotification('Süre Doldu!', {
+                    body: `'${eventName}' zamanı geldi kral!`,
+                    icon: 'icon.png'
+                });
+            });
+        }
+    }
+
+    function urlBase64ToUint8Array(base64String) {
+        const padding = '='.repeat((4 - base64String.length % 4) % 4);
+        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+        const rawData = window.atob(base64);
+        const outputArray = new Uint8Array(rawData.length);
+        for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+        return outputArray;
+    }
+
+    // --- KURULUM ---
     let defP;
     window.addEventListener('beforeinstallprompt', (e) => {
         e.preventDefault(); defP = e;
         document.getElementById('installBtn').style.display = 'block';
     });
-
     document.getElementById('installBtn').onclick = () => {
         defP.prompt();
         defP.userChoice.then(() => document.getElementById('installBtn').style.display = 'none');
     };
 
-    if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
     render();
 </script>
 </body>
