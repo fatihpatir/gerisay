@@ -3,11 +3,9 @@ self.addEventListener('push', function(event) {
     
     if (event.data) {
         try {
-            // Eğer veri JSON ise başlığı ve mesajı al
             const data = event.data.json();
             payload = data.body || data.message || payload;
         } catch (e) {
-            // Eğer veri düz metin ise direkt onu al
             payload = event.data.text();
         }
     }
@@ -16,16 +14,37 @@ self.addEventListener('push', function(event) {
         body: payload,
         icon: 'icon.png',
         badge: 'icon.png',
-        vibrate: [200, 100, 200]
+        // 'tag' aynı bildirimlerin üst üste binmesini ve tekrar etmesini engeller
+        tag: 'gerisay-bildirim-tekil', 
+        renotify: true,
+        vibrate: [200, 100, 200],
+        data: {
+            url: './' // Bildirime tıklayınca gidilecek yer
+        }
     };
 
     event.waitUntil(
-        self.registration.showNotification('GeriSay Bildirimi', options)
+        self.registration.showNotification('GeriSay', options)
     );
 });
 
-// Bildirime tıklayınca uygulamayı aç
+// Bildirime tıklandığında yapılacak işlemler
 self.addEventListener('notificationclick', function(event) {
+    // 1. Bildirimi panelden anında sil
     event.notification.close();
-    event.waitUntil(clients.openWindow('./'));
+
+    // 2. Eğer uygulama açıksa ona odaklan, kapalıysa yeni pencere aç
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+            for (var i = 0; i < windowClients.length; i++) {
+                var client = windowClients[i];
+                if (client.url.includes(location.origin) && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow('/');
+            }
+        })
+    );
 });
