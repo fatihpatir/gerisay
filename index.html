@@ -2,159 +2,150 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>GeriSay</title>
     <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <link rel="apple-touch-icon" href="icon.png">
     <style>
         :root { --p: #00d2ff; --bg: #0f172a; --card: #1e293b; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; padding: 20px; transition: 0.3s; }
-        .container { max-width: 500px; margin: auto; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; padding: 20px; margin: 0; transition: 0.3s; padding-bottom: 100px; }
         
-        /* Tema Renkleri */
         .t-blue { --p: #00d2ff; --bg: #0f172a; --card: #1e293b; }
         .t-red { --p: #ff4d4d; --bg: #2a0f0f; --card: #3b1e1e; }
         .t-green { --p: #00ff88; --bg: #0f2a1a; --card: #1e3b2a; }
         .t-gold { --p: #ffcc00; --bg: #2a250f; --card: #3b351e; }
         .t-purple { --p: #bc13fe; --bg: #1a0f2a; --card: #2a1e3b; }
 
-        .header { display: flex; justify-content: space-between; align-items: center; }
-        .input-group { background: var(--card); padding: 15px; border-radius: 15px; margin-bottom: 20px; }
-        input { width: 100%; padding: 10px; margin: 5px 0; border-radius: 8px; border: none; background: var(--bg); color: white; box-sizing: border-box; }
-        button { background: var(--p); color: black; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; }
+        .container { max-width: 500px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         
-        .event-card { background: var(--card); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 5px solid var(--p); position: relative; }
-        .timer { font-family: monospace; font-size: 1.2rem; color: var(--p); }
-        
-        /* Popup & I Butonu */
-        .info-btn { background: none; border: 1px solid var(--p); color: var(--p); width: 30px; height: 30px; border-radius: 50%; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 100; }
-        .modal-content { background: var(--card); margin: 15% auto; padding: 20px; width: 80%; border-radius: 15px; }
+        .input-group { background: var(--card); padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
+        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: var(--bg); color: white; box-sizing: border-box; outline: none; }
+        button { background: var(--p); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
+        button:active { transform: scale(0.98); }
 
-        .theme-ball { width: 30px; height: 30px; border-radius: 50%; display: inline-block; cursor: pointer; margin: 5px; border: 2px solid white; }
+        .event-card { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 15px; border-left: 5px solid var(--p); position: relative; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
-        footer { margin-top: 30px; text-align: center; font-size: 0.8rem; opacity: 0.7; }
+        .timer { font-family: 'Courier New', monospace; font-size: 1.3rem; color: var(--p); font-weight: bold; display: block; margin-top: 5px; }
+        .del-btn { position: absolute; right: 10px; top: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
+
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
+        .modal-content { background: var(--card); margin: 20% auto; padding: 25px; width: 85%; max-width: 400px; border-radius: 20px; border: 1px solid var(--p); }
+
+        .theme-ball { width: 40px; height: 40px; border-radius: 50%; display: inline-block; cursor: pointer; margin: 8px; border: 3px solid rgba(255,255,255,0.2); }
+        
+        footer { margin-top: 40px; text-align: center; font-size: 0.85rem; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
         footer a { color: var(--p); text-decoration: none; font-weight: bold; }
 
-        #installBtn { display: none; margin-bottom: 10px; background: #fff; color: #000; }
+        #installBtn { display: none; margin-bottom: 15px; background: #fff; color: #000; border: 2px solid var(--p); }
+        .i-btn { background: none; border: 1.5px solid var(--p); color: var(--p); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body class="t-blue">
 
 <div class="container">
     <div class="header">
-        <h1>GeriSay</h1>
-        <button class="info-btn" onclick="toggleModal('infoModal')">i</button>
+        <h1 style="margin:0; color:var(--p)">GeriSay</h1>
+        <button class="i-btn" onclick="openM('infoM')">i</button>
     </div>
 
     <button id="installBtn">Uygulamayı Yükle</button>
 
     <div class="input-group">
-        <input type="text" id="eventName" placeholder="Etkinlik Adı">
-        <input type="datetime-local" id="eventDate">
-        <button onclick="addEvent()">EKLE</button>
+        <input type="text" id="evN" placeholder="Etkinlik Adı">
+        <input type="datetime-local" id="evD">
+        <button onclick="add()">EKLE</button>
     </div>
 
-    <div id="eventList"></div>
+    <div id="list"></div>
 
-    <button onclick="toggleModal('themeModal')" style="margin-top: 20px; background: none; border: 1px solid var(--p); color: var(--p);">Tema Değiştir</button>
+    <button onclick="openM('themeM')" style="margin-top: 25px; background: none; border: 1px solid var(--p); color: var(--p);">Görünümü Değiştir</button>
 
     <footer>
         Tasarlayan: <a href="https://fatihpatir.github.io/web" target="_blank">Fatih PATIR</a><br>
-        Nene Hatun MTAL - Korkuteli/Antalya
+        Nene Hatun MTAL - Korkuteli / ANTALYA
     </footer>
 </div>
 
-<div id="infoModal" class="modal" onclick="toggleModal('infoModal')">
+<div id="infoM" class="modal" onclick="closeM('infoM')">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h3>Nasıl Kullanılır?</h3>
-        <p>1. Etkinlik adını ve tarihini girip ekleyin.</p>
-        <p>2. Geri sayım otomatik başlar ve kaydedilir.</p>
-        <p><b>Yükleme:</b> Android/Windows için 'Yükle' butonuna basın. iPhone için tarayıcıda 'Paylaş' -> 'Ana Ekrana Ekle' yapın.</p>
-        <button onclick="toggleModal('infoModal')">Kapat</button>
+        <h3 style="color:var(--p)">Nasıl Kullanılır?</h3>
+        <p>• Etkinlik girip "EKLE" deyin.<br>• Verileriniz telefonunuzda saklanır.<br>• <b>Android:</b> 'Yükle' butonuna basın.<br>• <b>iOS:</b> Paylaş -> Ana Ekrana Ekle.</p>
+        <button onclick="closeM('infoM')">Anladım</button>
     </div>
 </div>
 
-<div id="themeModal" class="modal" onclick="toggleModal('themeModal')">
+<div id="themeM" class="modal" onclick="closeM('themeM')">
     <div class="modal-content" onclick="event.stopPropagation()">
-        <h3>Tema Seç</h3>
-        <div class="theme-ball" style="background: #00d2ff;" onclick="setTheme('t-blue')"></div>
-        <div class="theme-ball" style="background: #ff4d4d;" onclick="setTheme('t-red')"></div>
-        <div class="theme-ball" style="background: #00ff88;" onclick="setTheme('t-green')"></div>
-        <div class="theme-ball" style="background: #ffcc00;" onclick="setTheme('t-gold')"></div>
-        <div class="theme-ball" style="background: #bc13fe;" onclick="setTheme('t-purple')"></div>
-        <button onclick="toggleModal('themeModal')">Kapat</button>
+        <h3 style="color:var(--p)">Renk Seçimi</h3>
+        <div class="theme-ball" style="background:#00d2ff" onclick="setT('t-blue')"></div>
+        <div class="theme-ball" style="background:#ff4d4d" onclick="setT('t-red')"></div>
+        <div class="theme-ball" style="background:#00ff88" onclick="setT('t-green')"></div>
+        <div class="theme-ball" style="background:#ffcc00" onclick="setT('t-gold')"></div>
+        <div class="theme-ball" style="background:#bc13fe" onclick="setT('t-purple')"></div>
+        <button onclick="closeM('themeM')" style="margin-top:15px">Kapat</button>
     </div>
 </div>
 
 <script>
-    let events = JSON.parse(localStorage.getItem('kral_events')) || [];
+    let evs = JSON.parse(localStorage.getItem('k_evs')) || [];
     
-    function setTheme(t) { document.body.className = t; localStorage.setItem('theme', t); }
-    if(localStorage.getItem('theme')) setTheme(localStorage.getItem('theme'));
+    function setT(t) { document.body.className = t; localStorage.setItem('k_t', t); }
+    if(localStorage.getItem('k_t')) setT(localStorage.getItem('k_t'));
 
-    function toggleModal(id) { 
-        const m = document.getElementById(id);
-        m.style.display = m.style.display === 'block' ? 'none' : 'block';
-    }
+    function openM(id) { document.getElementById(id).style.display = 'block'; }
+    function closeM(id) { document.getElementById(id).style.display = 'none'; }
 
-    function addEvent() {
-        const name = document.getElementById('eventName').value;
-        const date = document.getElementById('eventDate').value;
-        if (!name || !date) return;
-        events.push({ id: Date.now(), name, date });
+    function add() {
+        const n = document.getElementById('evN').value, d = document.getElementById('evD').value;
+        if (!n || !d) return;
+        evs.push({ id: Date.now(), n, d });
         save();
+        document.getElementById('evN').value = '';
     }
 
-    function save() {
-        localStorage.setItem('kral_events', JSON.stringify(events));
-        render();
-    }
+    function save() { localStorage.setItem('k_evs', JSON.stringify(evs)); render(); }
 
     function render() {
-        const list = document.getElementById('eventList');
-        list.innerHTML = "";
-        events.forEach(ev => {
+        const l = document.getElementById('list'); l.innerHTML = "";
+        evs.sort((a,b) => new Date(a.d) - new Date(b.d)).forEach(ev => {
             const div = document.createElement('div');
             div.className = 'event-card';
-            div.innerHTML = `<b>${ev.name}</b><br><span class="timer" id="t-${ev.id}"></span>
-            <button onclick="deleteEv(${ev.id})" style="width:auto; float:right; background:red; color:white; padding:2px 8px;">X</button>`;
-            list.appendChild(div);
-            setInterval(() => updateTimer(ev), 1000);
+            div.innerHTML = `<b>${ev.n}</b><br><span class="timer" id="timer-${ev.id}"></span>
+            <button class="del-btn" onclick="del(${ev.id})">Sil</button>`;
+            l.appendChild(div);
+            upd(ev);
         });
     }
 
-    function updateTimer(ev) {
-        const el = document.getElementById(`t-${ev.id}`);
-        if(!el) return;
-        const diff = new Date(ev.date) - new Date();
-        if (diff < 0) { el.innerText = "Süre Doldu"; return; }
-        const d = Math.floor(diff / 86400000);
-        const h = Math.floor((diff % 86400000) / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
-        el.innerText = `${d}g ${h}s ${m}d ${s}sn`;
+    function upd(ev) {
+        const el = document.getElementById(`timer-${ev.id}`);
+        const tick = () => {
+            const diff = new Date(ev.d) - new Date();
+            if (diff < 0) { el.innerText = "Süre doldu!"; return; }
+            const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
+            el.innerText = `${d}g ${h}s ${m}d ${s}sn`;
+        };
+        tick(); setInterval(tick, 1000);
     }
 
-    function deleteEv(id) { events = events.filter(e => e.id !== id); save(); }
+    function del(id) { evs = evs.filter(e => e.id !== id); save(); }
 
-    // PWA & Yükleme Butonu İşlemleri
-    let deferredPrompt;
+    let defP;
     window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault();
-        deferredPrompt = e;
+        e.preventDefault(); defP = e;
         document.getElementById('installBtn').style.display = 'block';
     });
 
     document.getElementById('installBtn').onclick = () => {
-        deferredPrompt.prompt();
-        deferredPrompt.userChoice.then(() => {
-            document.getElementById('installBtn').style.display = 'none';
-        });
+        defP.prompt();
+        defP.userChoice.then(() => document.getElementById('installBtn').style.display = 'none');
     };
 
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
     render();
 </script>
-
 </body>
 </html>
