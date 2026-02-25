@@ -1,50 +1,35 @@
 self.addEventListener('push', function(event) {
-    let payload = 'Süre doldu kral!';
-    
+    let icerik = 'Zaman doldu.';
     if (event.data) {
         try {
             const data = event.data.json();
-            payload = data.body || data.message || payload;
+            icerik = data.body || data.message || icerik;
         } catch (e) {
-            payload = event.data.text();
+            icerik = event.data.text();
         }
     }
 
-    const options = {
-        body: payload,
+    const secenekler = {
+        body: icerik,
         icon: 'icon.png',
         badge: 'icon.png',
-        // 'tag' aynı bildirimlerin üst üste binmesini ve tekrar etmesini engeller
-        tag: 'gerisay-bildirim-tekil', 
+        tag: 'gerisay-sistem', 
         renotify: true,
-        vibrate: [200, 100, 200],
-        data: {
-            url: './' // Bildirime tıklayınca gidilecek yer
-        }
+        vibrate: [100, 50, 100],
+        data: { url: './' }
     };
 
-    event.waitUntil(
-        self.registration.showNotification('GeriSay', options)
-    );
+    event.waitUntil(self.registration.showNotification('GeriSay Pro', secenekler));
 });
 
-// Bildirime tıklandığında yapılacak işlemler
 self.addEventListener('notificationclick', function(event) {
-    // 1. Bildirimi panelden anında sil
     event.notification.close();
-
-    // 2. Eğer uygulama açıksa ona odaklan, kapalıysa yeni pencere aç
     event.waitUntil(
-        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
-            for (var i = 0; i < windowClients.length; i++) {
-                var client = windowClients[i];
-                if (client.url.includes(location.origin) && 'focus' in client) {
-                    return client.focus();
-                }
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(pencereler => {
+            for (var i = 0; i < pencereler.length; i++) {
+                if (pencereler[i].url.includes(location.origin) && 'focus' in pencereler[i]) return pencereler[i].focus();
             }
-            if (clients.openWindow) {
-                return clients.openWindow('/');
-            }
+            if (clients.openWindow) return clients.openWindow('/');
         })
     );
 });

@@ -1,18 +1,17 @@
 {
-  "name": "GeriSay",
-  "short_name": "GeriSay",
-  "description": "Kralın Geri Sayım Aracı",
+  "name": "GeriSay Pro",
+  "short_name": "GeriSay Pro",
+  "description": "Profesyonel Zaman Takip Sistemi",
   "start_url": "index.html",
   "display": "standalone",
-  "background_color": "#0f172a",
-  "theme_color": "#00d2ff",
-  "gcm_sender_id": "103953800507",
+  "background_color": "#020617",
+  "theme_color": "#38bdf8",
   "icons": [
     {
       "src": "icon.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     }
   ]
 }

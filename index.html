@@ -3,189 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GeriSay</title>
+    <title>GeriSay Pro | F. PATIR</title>
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <meta name="theme-color" content="#020617">
     <link rel="apple-touch-icon" href="icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
     <style>
-        :root { --p: #00d2ff; --bg: #0f172a; --card: #1e293b; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: white; padding: 20px; margin: 0; transition: 0.3s; padding-bottom: 100px; }
-        .t-blue { --p: #00d2ff; --bg: #0f172a; --card: #1e293b; }
-        .t-red { --p: #ff4d4d; --bg: #2a0f0f; --card: #3b1e1e; }
-        .t-green { --p: #00ff88; --bg: #0f2a1a; --card: #1e3b2a; }
-        .t-gold { --p: #ffcc00; --bg: #2a250f; --card: #3b351e; }
-        .t-purple { --p: #bc13fe; --bg: #1a0f2a; --card: #2a1e3b; }
-        .container { max-width: 500px; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .input-group { background: var(--card); padding: 20px; border-radius: 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-        input { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid #334155; background: var(--bg); color: white; box-sizing: border-box; outline: none; }
-        button { background: var(--p); color: #000; border: none; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 100%; transition: 0.2s; }
-        button:active { transform: scale(0.98); }
-        .event-card { background: var(--card); padding: 15px; border-radius: 12px; margin-top: 15px; border-left: 5px solid var(--p); position: relative; }
-        .timer { font-family: 'Courier New', monospace; font-size: 1.3rem; color: var(--p); font-weight: bold; display: block; margin-top: 5px; }
-        .del-btn { position: absolute; right: 10px; top: 10px; background: rgba(239, 68, 68, 0.2); color: #ef4444; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; font-size: 12px; }
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; backdrop-filter: blur(5px); }
-        .modal-content { background: var(--card); margin: 20% auto; padding: 25px; width: 85%; max-width: 400px; border-radius: 20px; border: 1px solid var(--p); }
-        .theme-ball { width: 40px; height: 40px; border-radius: 50%; display: inline-block; cursor: pointer; margin: 8px; border: 3px solid rgba(255,255,255,0.2); }
-        footer { margin-top: 40px; text-align: center; font-size: 0.85rem; line-height: 1.6; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
-        footer a { color: var(--p); text-decoration: none; font-weight: bold; }
-        #notifBtn { margin-top: 10px; background: #22c55e; color: white; display: none; }
-        #installBtn { display: none; margin-bottom: 15px; background: #fff; color: #000; }
-        .i-btn { background: none; border: 1.5px solid var(--p); color: var(--p); width: 35px; height: 35px; border-radius: 50%; cursor: pointer; font-weight: bold; }
+        :root { --p: #38bdf8; --bg: #020617; --card: #0f172a; --text: #f8fafc; --danger: #f43f5e; --edit: #fbbf24; }
+        * { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
+        input { -webkit-user-select: text; user-select: text; }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); padding: 20px; margin: 0; transition: background 0.5s ease; overflow-x: hidden; }
+        .bg-isima { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: radial-gradient(circle at 50% -20%, var(--p), transparent 35%); opacity: 0.15; z-index: -1; pointer-events: none; }
+
+        /* Temalar */
+        .t-mavi { --p: #38bdf8; --bg: #020617; --card: #0f172a; }
+        .t-safir { --p: #6366f1; --bg: #030712; --card: #111827; }
+        .t-zumrut { --p: #10b981; --bg: #020f0a; --card: #064e3b; }
+        .t-altin { --p: #f59e0b; --bg: #0c0a09; --card: #1c1917; }
+        .t-rose { --p: #fb7185; --bg: #0f0205; --card: #1e0a0d; }
+
+        .konteyner { max-width: 450px; margin: auto; position: relative; }
+        
+        .nav-kontroller { position: absolute; right: 0; top: 10px; display: flex; gap: 8px; z-index: 100; }
+        .ust-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); color: var(--p); width: 38px; height: 38px; border-radius: 12px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.3s; }
+        .ust-btn.yükle-btn { display: none; width: auto; padding: 0 12px; font-size: 0.7rem; font-weight: 800; gap: 6px; }
+
+        .logo-alan { text-align: center; padding: 40px 0 30px 0; }
+        .logo-alan h1 { font-size: 3.2rem; font-weight: 200; letter-spacing: -3px; margin: 0; background: linear-gradient(to bottom, #fff 40%, var(--p) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-alan h1 span { font-weight: 800; }
+        .logo-alt { margin-top: 5px; font-size: 0.65rem; letter-spacing: 4px; opacity: 0.4; text-transform: uppercase; }
+
+        .ana-kart { background: var(--card); padding: 25px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.03); margin-bottom: 25px; box-shadow: 0 30px 60px -12px rgba(0,0,0,0.6); }
+        input { width: 100%; padding: 15px; margin: 8px 0; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); background: rgba(0,0,0,0.3); color: white; font-size: 1rem; }
+        .kaydet-btn { background: var(--p); color: #000; border: none; padding: 16px; border-radius: 14px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 10px; }
+
+        .etkinlik { background: linear-gradient(145deg, var(--card), rgba(255,255,255,0.01)); padding: 22px; border-radius: 22px; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.05); position: relative; }
+        .zamanlayici { font-size: 1.7rem; font-weight: 700; color: var(--p); font-variant-numeric: tabular-nums; }
+        
+        .aksiyonlar { position: absolute; right: 15px; top: 22px; display: flex; gap: 8px; }
+        .mini-btn { background: rgba(255,255,255,0.03); border: none; color: #475569; width: 34px; height: 34px; border-radius: 10px; cursor: pointer; }
+
+        /* Modallar */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); backdrop-filter: blur(12px); z-index: 1000; }
+        .modal-icerik { background: var(--card); margin: 20% auto; padding: 25px; width: 85%; max-width: 320px; border-radius: 28px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        
+        .secim-btn { width: 100%; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); color: #94a3b8; padding: 14px; border-radius: 15px; cursor: pointer; margin-bottom: 10px; font-weight: 600; }
+        .secim-btn.aktif { background: var(--p); color: #000; }
+
+        .tema-izgara { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+        .renk-tile { aspect-ratio: 1; border-radius: 12px; cursor: pointer; border: 2px solid transparent; }
+        .renk-tile.aktif { border-color: #fff; transform: scale(1.1); }
+
+        #alarmPanel { display: none; position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%); background: var(--danger); color: white; padding: 18px 40px; border-radius: 50px; z-index: 2000; font-weight: 800; animation: hb 1.5s infinite; cursor: pointer; }
+        @keyframes hb { 0%, 100% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); } }
+
+        footer { margin-top: 50px; text-align: center; padding-bottom: 40px; }
+        .imza-link { text-decoration: none; display: inline-block; padding: 12px 24px; border-radius: 22px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .f-isim { font-size: 0.75rem; letter-spacing: 3px; color: var(--p); font-weight: 800; display: block; margin-bottom: 4px; }
+        .f-okul { font-size: 0.55rem; color: #475569; letter-spacing: 1px; text-transform: uppercase; }
+
+        /* Rehber Adımları */
+        .rehber-adim { text-align: left; font-size: 0.85rem; color: #94a3b8; margin: 15px 0; line-height: 1.5; }
+        .rehber-adim i { color: var(--p); margin-right: 8px; }
     </style>
 </head>
-<body class="t-blue">
-
-<div class="container">
-    <div class="header">
-        <h1 style="margin:0; color:var(--p)">GeriSay</h1>
-        <button class="i-btn" onclick="openM('infoM')">i</button>
+<body class="t-mavi">
+<div class="bg-isima"></div>
+<div class="konteyner">
+    <div class="nav-kontroller">
+        <button id="installBtn" class="ust-btn yükle-btn" onclick="yükle()">
+            <i class="fas fa-download"></i> UYGULAMAYI YÜKLE
+        </button>
+        <button class="ust-btn" onclick="ac('m-ses')"><i class="fas fa-bell"></i></button>
+        <button class="ust-btn" onclick="ac('m-tema')"><i class="fas fa-palette"></i></button>
+        <button class="ust-btn" onclick="ac('m-bilgi')"><i class="fas fa-info-circle"></i></button>
+    </div>
+    
+    <div class="logo-alan">
+        <h1>Geri<span>Say</span></h1>
+        <div class="logo-alt">Zaman Yönetim Sistemi</div>
     </div>
 
-    <button id="installBtn">Uygulamayı Yükle</button>
-    <button id="notifBtn" onclick="subscribePush()">Bildirimleri Etkinleştir</button>
-
-    <div class="input-group">
-        <input type="text" id="evN" placeholder="Etkinlik Adı">
-        <input type="datetime-local" id="evD">
-        <button onclick="add()">EKLE</button>
+    <div class="ana-kart">
+        <input type="text" id="b" placeholder="Başlık Giriniz">
+        <input type="datetime-local" id="t">
+        <input type="hidden" id="eid">
+        <button class="kaydet-btn" id="btn" onclick="kaydet()">GERİ SAYIMI BAŞLAT</button>
     </div>
 
-    <div id="list"></div>
-
-    <button onclick="openM('themeM')" style="margin-top: 25px; background: none; border: 1px solid var(--p); color: var(--p);">Görünümü Değiştir</button>
+    <div id="liste"></div>
 
     <footer>
-        Tasarlayan: <a href="https://fatihpatir.github.io/web" target="_blank">Fatih PATIR</a><br>
-        Nene Hatun MTAL - Korkuteli / ANTALYA
+        <a href="https://fatihpatir.github.io/web" target="_blank" class="imza-link">
+            <span class="f-isim">FATİH PATIR</span>
+            <span class="f-okul">Nene Hatun MTAL • Korkuteli • Antalya</span>
+        </a>
     </footer>
 </div>
 
-<div id="infoM" class="modal" onclick="closeM('infoM')">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="color:var(--p)">Nasıl Kullanılır?</h3>
-        <p>• Etkinlik girip "EKLE" deyin.<br>• Verileriniz telefonunuzda saklanır.<br>• <b>Bildirim:</b> Yeşil butona basıp izin verin.</p>
-        <button onclick="closeM('infoM')">Anladım</button>
+<div id="alarmPanel" onclick="dur()">ALARMI DURDUR</div>
+
+<div id="m-ses" class="modal" onclick="kapat('m-ses')">
+    <div class="modal-icerik" onclick="event.stopPropagation()">
+        <h3>Ses Modu</h3>
+        <button class="secim-btn" id="s-kapali" onclick="sSet('kapali')">Sessiz</button>
+        <button class="secim-btn" id="s-kisa" onclick="sSet('kisa')">Kibar Ding</button>
+        <button class="secim-btn" id="s-uzun" onclick="sSet('uzun')">Dijital Alarm</button>
     </div>
 </div>
 
-<div id="themeM" class="modal" onclick="closeM('themeM')">
-    <div class="modal-content" onclick="event.stopPropagation()">
-        <h3 style="color:var(--p)">Renk Seçimi</h3>
-        <div class="theme-ball" style="background:#00d2ff" onclick="setT('t-blue')"></div>
-        <div class="theme-ball" style="background:#ff4d4d" onclick="setT('t-red')"></div>
-        <div class="theme-ball" style="background:#00ff88" onclick="setT('t-green')"></div>
-        <div class="theme-ball" style="background:#ffcc00" onclick="setT('t-gold')"></div>
-        <div class="theme-ball" style="background:#bc13fe" onclick="setT('t-purple')"></div>
-        <button onclick="closeM('themeM')" style="margin-top:15px">Kapat</button>
+<div id="m-tema" class="modal" onclick="kapat('m-tema')">
+    <div class="modal-icerik" onclick="event.stopPropagation()">
+        <h3>Renk Şeması</h3>
+        <div class="tema-izgara">
+            <div class="renk-tile" id="t-mavi" style="background:#38bdf8" onclick="tSet('t-mavi')"></div>
+            <div class="renk-tile" id="t-safir" style="background:#6366f1" onclick="tSet('t-safir')"></div>
+            <div class="renk-tile" id="t-zumrut" style="background:#10b981" onclick="tSet('t-zumrut')"></div>
+            <div class="renk-tile" id="t-altin" style="background:#f59e0b" onclick="tSet('t-altin')"></div>
+            <div class="renk-tile" id="t-rose" style="background:#fb7185" onclick="tSet('t-rose')"></div>
+        </div>
+    </div>
+</div>
+
+<div id="m-bilgi" class="modal" onclick="kapat('m-bilgi')">
+    <div class="modal-icerik" onclick="event.stopPropagation()">
+        <h3>Kurulum Rehberi</h3>
+        <div id="rehber-icerik">
+            <div class="rehber-adim"><i class="fab fa-apple"></i> <b>iPhone:</b> Paylaş butonuna basıp "Ana Ekrana Ekle" seçeneğini seçin.</div>
+            <div class="rehber-adim"><i class="fab fa-android"></i> <b>Android:</b> Tarayıcı ayarlarından "Uygulamayı Yükle" seçeneğini seçin.</div>
+        </div>
+        <button class="kaydet-btn" onclick="kapat('m-bilgi')">KAPAT</button>
     </div>
 </div>
 
 <script>
-    const publicVapidKey = 'BNLZsm2t_n2TW-4Vuq0CeGslqN-3f4R3qwVIAxDyx4qpikvp6DLUX7y-eH_P-ylt6XtJfi9GEj7arVtGKAxWdVI';
-    let evs = JSON.parse(localStorage.getItem('k_evs')) || [];
-    let notifiedEvents = new Set(); // Bildirimi atılanları takip et
+    let d = JSON.parse(localStorage.getItem('gs_v2')) || [];
+    let bSet = new Set();
+    let deferredPrompt;
     
-    function setT(t) { document.body.className = t; localStorage.setItem('k_t', t); }
-    if(localStorage.getItem('k_t')) setT(localStorage.getItem('k_t'));
+    let sKisa = new Audio("https://actions.google.com/sounds/v1/alarms/beep_short.ogg");
+    let sUzun = new Audio("https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg");
+    sUzun.loop = true;
 
-    function openM(id) { document.getElementById(id).style.display = 'block'; }
-    function closeM(id) { document.getElementById(id).style.display = 'none'; }
+    // PWA Kurulum Mantığı
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        document.getElementById('installBtn').style.display = 'flex';
+    });
 
-    function add() {
-        const n = document.getElementById('evN').value, d = document.getElementById('evD').value;
-        if (!n || !d) return;
-        evs.push({ id: Date.now(), n, d });
-        save();
-        document.getElementById('evN').value = '';
+    function yükle() {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choice) => {
+            if (choice.outcome === 'accepted') {
+                document.getElementById('installBtn').style.display = 'none';
+            }
+            deferredPrompt = null;
+        });
     }
 
-    function save() { localStorage.setItem('k_evs', JSON.stringify(evs)); render(); }
+    function ac(id) { document.getElementById(id).style.display = 'block'; }
+    function kapat(id) { document.getElementById(id).style.display = 'none'; }
+
+    function sSet(m) {
+        localStorage.setItem('gs_s', m);
+        document.querySelectorAll('.secim-btn').forEach(b => b.classList.remove('aktif'));
+        if(document.getElementById('s-'+m)) document.getElementById('s-'+m).classList.add('aktif');
+        kapat('m-ses');
+    }
+
+    function tSet(t) {
+        document.body.className = t;
+        localStorage.setItem('gs_t', t);
+        document.querySelectorAll('.renk-tile').forEach(tile => tile.classList.remove('aktif'));
+        if(document.getElementById(t)) document.getElementById(t).classList.add('aktif');
+        setTimeout(() => kapat('m-tema'), 200);
+    }
+
+    function kaydet() {
+        const bas = document.getElementById('b').value, tar = document.getElementById('t').value, id = document.getElementById('eid').value;
+        if(!bas || !tar) return;
+        if(id) {
+            const i = d.findIndex(x => x.id == id); d[i] = { ...d[i], b:bas, t:tar };
+            document.getElementById('eid').value = ''; document.getElementById('btn').innerText = "GERİ SAYIMI BAŞLAT";
+        } else { d.push({ id: Date.now(), b:bas, t:tar }); }
+        localStorage.setItem('gs_v2', JSON.stringify(d));
+        document.getElementById('b').value = ''; document.getElementById('t').value = ''; render();
+    }
 
     function render() {
-        const l = document.getElementById('list'); l.innerHTML = "";
-        evs.sort((a,b) => new Date(a.d) - new Date(b.d)).forEach(ev => {
-            const div = document.createElement('div');
-            div.className = 'event-card';
-            div.innerHTML = `<b>${ev.n}</b><br><span class="timer" id="timer-${ev.id}"></span>
-            <button class="del-btn" onclick="del(${ev.id})">Sil</button>`;
-            l.appendChild(div);
-            upd(ev);
+        const l = document.getElementById('liste'); l.innerHTML = '';
+        d.sort((a,b) => new Date(a.t) - new Date(b.t)).forEach(item => {
+            const div = document.createElement('div'); div.className = 'etkinlik';
+            div.innerHTML = `<h3>${item.b}</h3><div class="zamanlayici" id="z-${item.id}">--:--:--</div>
+                <div class="aksiyonlar"><button class="mini-btn" onclick="edit(${item.id})"><i class="fas fa-pen"></i></button>
+                <button class="mini-btn" onclick="del(${item.id})"><i class="fas fa-trash"></i></button></div>`;
+            l.appendChild(div); tick(item);
         });
     }
 
-    function upd(ev) {
-        const el = document.getElementById(`timer-${ev.id}`);
-        const tick = () => {
-            const diff = new Date(ev.d) - new Date();
-            if (diff < 0) { 
-                el.innerText = "Süre doldu!"; 
-                if (!notifiedEvents.has(ev.id)) {
-                    showLocalNotification(ev.n);
-                    notifiedEvents.add(ev.id);
-                }
-                return; 
-            }
-            const d = Math.floor(diff/86400000), h = Math.floor((diff%86400000)/3600000), m = Math.floor((diff%3600000)/60000), s = Math.floor((diff%60000)/1000);
-            el.innerText = `${d}g ${h}s ${m}d ${s}sn`;
-        };
-        tick(); setInterval(tick, 1000);
+    function tick(item) {
+        const up = () => {
+            const f = new Date(item.t) - new Date(); const el = document.getElementById('z-'+item.id); if(!el) return;
+            if(f <= 0) { el.innerText = "SÜRE DOLDU"; el.style.color = "var(--danger)"; if(!bSet.has(item.id)) { playU(item.b); bSet.add(item.id); } return; }
+            const g=Math.floor(f/86400000), s=Math.floor((f%86400000)/3600000), m=Math.floor((f%3600000)/60000), sn=Math.floor((f%60000)/1000);
+            el.innerText = `${g > 0 ? g+'g ' : ''}${s.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${sn.toString().padStart(2,'0')}`;
+        }; up(); setInterval(up, 1000);
     }
 
-    function del(id) { evs = evs.filter(e => e.id !== id); notifiedEvents.delete(id); save(); }
-
-    // --- BİLDİRİM MANTIĞI ---
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('sw.js').then(() => {
-            if (Notification.permission !== 'granted') {
-                document.getElementById('notifBtn').style.display = 'block';
-            }
-        });
+    function playU(b) {
+        confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 } });
+        const m = localStorage.getItem('gs_s') || 'kapali';
+        if(m === 'kisa') { sKisa.currentTime = 0; sKisa.play().catch(e => {}); }
+        if(m === 'uzun') { sUzun.currentTime = 0; sUzun.play().catch(e => {}); document.getElementById('alarmPanel').style.display = 'block'; }
     }
 
-    async function subscribePush() {
-        const register = await navigator.serviceWorker.ready;
-        const subscription = await register.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(publicVapidKey)
-        });
-        console.log("TOKEN KRAL:", JSON.stringify(subscription));
-        alert("Bildirimler aktif! Console'daki kodu bana atabilirsin.");
-        document.getElementById('notifBtn').style.display = 'none';
+    function dur() { sUzun.pause(); sUzun.currentTime = 0; document.getElementById('alarmPanel').style.display = 'none'; }
+    function del(id) { if(confirm('Silinsin mi kral?')) { d = d.filter(x => x.id != id); localStorage.setItem('gs_v2', JSON.stringify(d)); render(); } }
+    function edit(id) {
+        const i = d.find(x => x.id == id); document.getElementById('b').value = i.b; document.getElementById('t').value = i.t;
+        document.getElementById('eid').value = id; document.getElementById('btn').innerText = "GÜNCELLE"; window.scrollTo({top:0, behavior:'smooth'});
     }
 
-    function showLocalNotification(eventName) {
-        if (Notification.permission === 'granted') {
-            navigator.serviceWorker.ready.then(reg => {
-                reg.showNotification('Süre Doldu!', {
-                    body: `'${eventName}' zamanı geldi kral!`,
-                    icon: 'icon.png'
-                });
-            });
-        }
-    }
-
-    function urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-        for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
-        return outputArray;
-    }
-
-    // --- KURULUM ---
-    let defP;
-    window.addEventListener('beforeinstallprompt', (e) => {
-        e.preventDefault(); defP = e;
-        document.getElementById('installBtn').style.display = 'block';
-    });
-    document.getElementById('installBtn').onclick = () => {
-        defP.prompt();
-        defP.userChoice.then(() => document.getElementById('installBtn').style.display = 'none');
+    window.onload = () => {
+        sSet(localStorage.getItem('gs_s') || 'kapali');
+        tSet(localStorage.getItem('gs_t') || 't-mavi');
+        render();
     };
-
-    render();
 </script>
 </body>
 </html>
